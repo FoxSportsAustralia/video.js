@@ -512,6 +512,7 @@ class Player extends Component {
     // Grab tech-specific options from player options and add source and parent element to use.
     var techOptions = assign({
       'nativeControlsForTouch': this.options_.nativeControlsForTouch,
+      'disableEmitTapEvents': this.options_.disableEmitTapEvents,
       'source': source,
       'playerId': this.id(),
       'techId': `${this.id()}_${techName}_api`,
@@ -2274,10 +2275,14 @@ class Player extends Component {
           // When this gets resolved in ALL browsers it can be removed
           // https://code.google.com/p/chromium/issues/detail?id=103041
           if(this.tech_) {
-            this.tech_.one('mousemove', function(e){
-              e.stopPropagation();
-              e.preventDefault();
-            });
+            // But make sure we're not touch enabled and trying to use native controls.
+            // This will stop native controls from appearing on androids as we stop events
+            if (!(browser.TOUCH_ENABLED && this.options_.nativeControlsForTouch)) {
+              this.tech_.one('mousemove', function(e){
+                e.stopPropagation();
+                e.preventDefault();
+              });
+            }
           }
 
           this.removeClass('vjs-user-active');
