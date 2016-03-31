@@ -4331,6 +4331,10 @@ var Component = (function () {
 
     var couldBeTap = undefined;
 
+    if (this.options_.disableEmitTapEvents) {
+      return;
+    }
+
     this.on('touchstart', function (event) {
       // If more than one finger, don't consider treating this as a click
       if (event.touches.length === 1) {
@@ -9892,6 +9896,7 @@ var Player = (function (_Component) {
     // Grab tech-specific options from player options and add source and parent element to use.
     var techOptions = _objectAssign2['default']({
       'nativeControlsForTouch': this.options_.nativeControlsForTouch,
+      'disableEmitTapEvents': this.options_.disableEmitTapEvents,
       'source': source,
       'playerId': this.id(),
       'techId': this.id() + '_' + techName + '_api',
@@ -11745,10 +11750,14 @@ var Player = (function (_Component) {
           // When this gets resolved in ALL browsers it can be removed
           // https://code.google.com/p/chromium/issues/detail?id=103041
           if (this.tech_) {
-            this.tech_.one('mousemove', function (e) {
-              e.stopPropagation();
-              e.preventDefault();
-            });
+            // But make sure we're not touch enabled and trying to use native controls.
+            // This will stop native controls from appearing on androids as we stop events
+            if (!(browser.TOUCH_ENABLED && this.options_.nativeControlsForTouch)) {
+              this.tech_.one('mousemove', function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+              });
+            }
           }
 
           this.removeClass('vjs-user-active');
