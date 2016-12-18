@@ -1514,6 +1514,10 @@ class Component {
 
     let couldBeTap;
 
+    if (this.options_.disableEmitTapEvents) {
+      return;
+    }
+
     this.on('touchstart', function(event) {
       // If more than one finger, don't consider treating this as a click
       if (event.touches.length === 1) {
